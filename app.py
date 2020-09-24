@@ -41,11 +41,14 @@ with open('./recipes.json', 'w+') as fo:
 db = mysql.connector.connect(host = 'localhost', user = 'ahRecipeFinder', password = 'Test123', database = 'ahRecipeFinder')
 for recipe in recipes:
 	cursor = db.cursor()
-	sql = "INSERT INTO recipes (URL, imageURL, name, ingredients) VALUES (%s, %s, %s, %s)"
-	ingredients = recipe['ingredients']
-	i = ''
-	for ingredient in ingredients:
-		i += ingredient + ', '
-	val = (recipe['url'], recipe['imageUrl'], recipe['name'], i)
+	sql = "INSERT INTO recipes (URL, imageURL, name) VALUES (%s, %s, %s)"
+	val = (recipe['url'], recipe['imageUrl'], recipe['name'])
 	cursor.execute(sql, val)
+	id = cursor.lastrowid
 	db.commit()
+
+	for ingredient in recipe['ingredients']:
+		sql = "INSERT INTO ingredients (name, recipeID) VALUES (%s, %s)"
+		val = (ingredient, id)
+		cursor.execute(sql, val)
+		db.commit()
